@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I like / I don't like – 一年级动物游戏</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Patrick Hand', cursive, sans-serif;
+            background: linear-gradient(145deg, #ffdde1 0%, #ee9ca7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            margin: 0;
+        }
+
+        /* 游戏主卡片 */
+        .game-container {
+            width: 900px;
+            max-width: 100%;
+            height: 650px;
+            background-color: #fff9e6;
+            border-radius: 80px 80px 60px 60px;
+            box-shadow: 0 20px 0 #c97b7b, 0 25px 30px rgba(0, 0, 0, 0.3);
+            border: 8px solid #f7d9aa;
+            padding: 20px 30px 30px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        /* 页面容器 */
+        .page {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            width: 100%;
+            height: 100%;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* 标题区 */
+        h1 {
+            font-size: 3.5rem;
+            color: #7b3f00;
+            text-shadow: 5px 5px 0 #ffb347;
+            text-align: center;
+            letter-spacing: 2px;
+            margin: 10px 0 5px;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            color: #b34180;
+            text-shadow: 3px 3px 0 #ffd966;
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        /* 名字输入页 */
+        .name-input-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 30px;
+        }
+
+        .name-input-area input {
+            font-size: 2rem;
+            padding: 18px 30px;
+            border-radius: 60px;
+            border: 5px solid #f7b731;
+            background: #fff4d6;
+            width: 70%;
+            text-align: center;
+            font-family: inherit;
+            outline: none;
+            box-shadow: 0 8px 0 #b86b1f;
+            transition: 0.1s;
+        }
+
+        .name-input-area input:focus {
+            transform: translateY(3px);
+            box-shadow: 0 5px 0 #b86b1f;
+        }
+
+        .big-button {
+            background: #f7b731;
+            border: none;
+            border-radius: 60px;
+            padding: 20px 50px;
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #3b2e1e;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #b86b1f, 0 10px 20px rgba(0, 0, 0, 0.2);
+            transition: 0.1s;
+            border: 3px solid #fff2c9;
+            letter-spacing: 2px;
+        }
+
+        .big-button:active {
+            transform: translateY(6px);
+            box-shadow: 0 4px 0 #b86b1f, 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .big-button:disabled {
+            opacity: 0.6;
+            transform: translateY(5px);
+            box-shadow: 0 5px 0 #b86b1f;
+            pointer-events: none;
+        }
+
+        /* 第二页指令 */
+        .instruction-box {
+            background: #ffeaa5;
+            border-radius: 70px;
+            padding: 30px 40px;
+            border: 6px dashed #f0932b;
+            margin: 15px 0;
+            text-align: center;
+            box-shadow: inset 0 0 0 8px #fff1c1;
+        }
+
+        .instruction-text {
+            font-size: 2.2rem;
+            color: #6b3e1c;
+            margin: 15px 0;
+            line-height: 1.5;
+            font-weight: bold;
+        }
+
+        .slow-audio-btn {
+            background: #6ab04c;
+            box-shadow: 0 8px 0 #2e6b1e;
+            color: white;
+            font-size: 1.8rem;
+            padding: 15px 35px;
+            border-radius: 50px;
+            border: 4px solid #b8e994;
+            margin: 10px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+
+        .slow-audio-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 3px 0 #2e6b1e;
+        }
+
+        /* 游戏页面 - 动物图片区域 */
+        .animal-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            min-height: 180px;
+            margin: 5px 0;
+        }
+
+        .animal-img {
+            font-size: 9rem;
+            filter: drop-shadow(8px 12px 0 rgba(0, 0, 0, 0.15));
+            transition: transform 0.3s ease;
+            line-height: 1;
+        }
+
+        .animal-img.pop {
+            animation: pop 0.5s ease;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
+
+        /* 选项按钮区域 */
+        .choices {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin: 15px 0 30px;
+        }
+
+        .choice-btn {
+            background: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 140px;
+            height: 140px;
+            font-size: 5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 12px 0 #bba88b, 0 12px 20px rgba(0, 0, 0, 0.2);
+            transition: 0.08s;
+            border: 5px solid #ffd966;
+            font-family: inherit;
+        }
+
+        .choice-btn:active {
+            transform: translateY(8px);
+            box-shadow: 0 4px 0 #bba88b, 0 12px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .choice-btn:disabled {
+            opacity: 0.5;
+            transform: translateY(8px);
+            box-shadow: 0 4px 0 #bba88b;
+            pointer-events: none;
+            filter: grayscale(0.7);
+        }
+
+        /* 反馈动画 */
+        .feedback-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 8rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 50;
+            border-radius: 70px;
+        }
+
+        .feedback-overlay.show {
+            opacity: 1;
+            animation: feedbackFade 0.8s ease;
+        }
+
+        @keyframes feedbackFade {
+            0% { opacity: 0; transform: scale(0.5); }
+            30% { opacity: 1; transform: scale(1.2); }
+            70% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.8); }
+        }
+
+        /* 分数页 */
+        .score-display {
+            font-size: 5rem;
+            color: #b34180;
+            text-align: center;
+            background: #fff4d6;
+            border-radius: 70px;
+            padding: 30px 20px;
+            margin: 20px auto;
+            width: fit-content;
+            border: 6px solid #f7b731;
+            box-shadow: 0 12px 0 #c97b7b;
+        }
+
+        .score-name {
+            font-size: 2.8rem;
+            color: #3b2e1e;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        /* 进度指示器 */
+        .progress {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: auto;
+            padding: 10px 0 5px;
+        }
+
+        .dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #e0c9a6;
+            border: 2px solid #b38b5b;
+        }
+
+        .dot.active {
+            background: #f7b731;
+            transform: scale(1.2);
+            border-color: #b86b1f;
+        }
+
+        /* 音频播放按钮（游戏页自动播放，但加一个重播） */
+        .replay-btn {
+            background: #f0932b;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            font-size: 1.5rem;
+            color: white;
+            font-family: inherit;
+            box-shadow: 0 6px 0 #b86b1f;
+            cursor: pointer;
+            margin: 0 auto 5px;
+            border: 3px solid #ffd966;
+        }
+
+        .replay-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #b86b1f;
+        }
+
+        /* 辅助布局 */
+        .flex-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* 隐藏音频元素 */
+        audio {
+            display: none;
+        }
+
+        /* 分数星星 */
+        .stars {
+            font-size: 3rem;
+            letter-spacing: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <!-- 反馈浮层动画 -->
+        <div class="feedback-overlay" id="feedbackOverlay"></div>
+
+        <!-- 第1页：输入名字 -->
+        <div class="page active" id="page1">
+            <h1>🐾 I LIKE / I DON'T LIKE 🐾</h1>
+            <div class="name-input-area">
+                <h2>What's your name?</h2>
+                <input type="text" id="playerNameInput" placeholder="Type here..." maxlength="20" autocomplete="off">
+                <button class="big-button" id="startBtn">START ➡️</button>
+            </div>
+        </div>
+
+        <!-- 第2页：指令页 -->
+        <div class="page" id="page2">
+            <h1>📢 HOW TO PLAY 📢</h1>
+            <div class="instruction-box">
+                <div class="instruction-text">🔊 Listen to the sentence.</div>
+                <div class="instruction-text">😊 If you hear <strong>I LIKE</strong>, tap the smiley.</div>
+                <div class="instruction-text">😢 If you hear <strong>I DON'T LIKE</strong>, tap the crying face.</div>
+                <div class="instruction-text">⭐ Get points for correct answers!</div>
+            </div>
+            <div style="display: flex; justify-content: center;">
+                <button class="slow-audio-btn" id="instructionAudioBtn">🔊 Play instructions (slow)</button>
+            </div>
+            <div style="margin-top: auto; display: flex; justify-content: center; padding: 10px;">
+                <button class="big-button" id="toGameBtn">GO TO GAME 🎮</button>
+            </div>
+        </div>
+
+        <!-- 游戏页面 3~10 (8只动物) 和分数页将用JS生成 -->
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 动物数据 ----------
+            // 基础动物列表：8种动物
+            const baseAnimals = [
+                { name: 'cat', emoji: '🐱' },
+                { name: 'bird', emoji: '🐦' },
+                { name: 'spider', emoji: '🕷️' },
+                { name: 'elephant', emoji: '🐘' },
+                { name: 'lizard', emoji: '🦎' },
+                { name: 'mouse', emoji: '🐭' },
+                { name: 'dog', emoji: '🐶' },
+                { name: 'frog', emoji: '🐸' }
+            ];
+
+            // 随机打乱 like 属性，并且打乱动物顺序，避免规律
+            // 我们将在每次游戏开始时生成新的随机序列
+            let animals = [];      // 当前游戏使用的动物数组（已打乱顺序和like状态）
+
+            // 生成随机顺序和随机like的动物数组
+            function generateRandomAnimals() {
+                // 复制基础数组
+                const shuffled = [...baseAnimals];
+                // 打乱顺序 (Fisher–Yates)
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                // 为每个动物随机分配 like (true/false)，确保like和don't like大致均衡但无规律
+                // 为了有足够的两种答案，随机分配即可，不强制数量相等。
+                // 但为了游戏体验，尽量保证至少2个like和2个don't like，但完全随机也行。
+                // 这里采用随机分配，每个动物50%概率like。
+                const withLike = shuffled.map(animal => ({
+                    ...animal,
+                    like: Math.random() < 0.5  // true = I like, false = I don't like
+                }));
+
+                // 可选：如果全是一种答案，调整一下（避免极端情况）
+                const likeCount = withLike.filter(a => a.like).length;
+                if (likeCount === 0) {
+                    // 全是不喜欢，随机把一个改成喜欢
+                    const idx = Math.floor(Math.random() * withLike.length);
+                    withLike[idx].like = true;
+                } else if (likeCount === withLike.length) {
+                    // 全是喜欢，随机把一个改成不喜欢
+                    const idx = Math.floor(Math.random() * withLike.length);
+                    withLike[idx].like = false;
+                }
+
+                return withLike;
+            }
+
+            // 状态
+            let playerName = '';
+            let currentPageIndex = 0; // 0-based
+            let score = 0;
+            let totalQuestions = 8;
+            let answered = false; // 当前页是否已作答
+            let currentAnimalIndex = 0; // 0~7
+
+            // 页面引用
+            const container = document.getElementById('gameContainer');
+            const page1 = document.getElementById('page1');
+            const page2 = document.getElementById('page2');
+            const feedbackOverlay = document.getElementById('feedbackOverlay');
+
+            // 音频上下文（用于简单音效，但用Web Audio API合成简单音效）
+            let audioCtx = null;
+
+            // 初始化音频上下文
+            function initAudio() {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+
+            // 播放简单音效 (正确/错误)
+            function playSound(type) {
+                initAudio();
+                if (!audioCtx) return;
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(880, now); // A5
+                    osc.frequency.setValueAtTime(1320, now + 0.1); // E6
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now); // A3
+                    osc.frequency.setValueAtTime(180, now + 0.1);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'click') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(600, now);
+                    gain.gain.setValueAtTime(0.1, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                }
+            }
+
+            // 语音合成：说出句子，语速更慢 (rate 0.6 更慢)
+            function speakSentence(animalName, isLike, rate = 0.6) {
+                if (!window.speechSynthesis) {
+                    console.warn('SpeechSynthesis not supported');
+                    return;
+                }
+                // 取消任何正在播放的语音
+                window.speechSynthesis.cancel();
+
+                const text = isLike ? `I like ${animalName}` : `I don't like ${animalName}`;
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = rate;      // 更慢，清晰
+                utterance.pitch = 1.0;       // 正常音调，更清晰
+                utterance.volume = 1;
+
+                // 选择一个可爱的声音（可选）
+                const voices = window.speechSynthesis.getVoices();
+                // 优先选择英文女声
+                const preferred = voices.find(v => v.lang.includes('en') && (v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Zira')));
+                if (preferred) utterance.voice = preferred;
+
+                window.speechSynthesis.speak(utterance);
+            }
+
+            // 播放指令语音（很慢）
+            function speakInstructions() {
+                if (!window.speechSynthesis) return;
+                window.speechSynthesis.cancel();
+                const text = "Listen to the sentence. If you hear I like, tap the smiley face. If you hear I don't like, tap the crying face. Good luck!";
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.65;      // 非常慢
+                utterance.pitch = 1.0;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+
+            // 显示反馈动画
+            function showFeedback(isCorrect) {
+                feedbackOverlay.textContent = isCorrect ? '✅😊' : '❌😢';
+                feedbackOverlay.style.color = isCorrect ? '#2e7d32' : '#b71c1c';
+                feedbackOverlay.classList.add('show');
+                setTimeout(() => {
+                    feedbackOverlay.classList.remove('show');
+                }, 800);
+            }
+
+            // 更新分数和进度
+            function updateProgress() {
+                // 进度点
+                const dots = document.querySelectorAll('.dot');
+                if (dots.length) {
+                    dots.forEach((dot, idx) => {
+                        if (idx === currentPageIndex - 2) { // 游戏页从第3页开始，索引0对应第三页(游戏页0)
+                            dot.classList.add('active');
+                        } else {
+                            dot.classList.remove('active');
+                        }
+                    });
+                }
+            }
+
+            // 当前游戏页处理
+            function handleAnswer(selectedLike) {
+                if (answered) return;
+                answered = true;
+                const animal = animals[currentAnimalIndex];
+                const isCorrect = (selectedLike === animal.like);
+
+                if (isCorrect) {
+                    score++;
+                    playSound('correct');
+                    showFeedback(true);
+                } else {
+                    playSound('wrong');
+                    showFeedback(false);
+                }
+
+                // 禁用当前页的两个按钮
+                const currentPage = document.querySelector(`.page[data-game-index="${currentAnimalIndex}"]`);
+                if (currentPage) {
+                    const btns = currentPage.querySelectorAll('.choice-btn');
+                    btns.forEach(btn => btn.disabled = true);
+                }
+
+                // 延迟后进入下一题
+                setTimeout(() => {
+                    // 移动到下一页
+                    if (currentAnimalIndex < animals.length - 1) {
+                        // 下一页游戏
+                        currentAnimalIndex++;
+                        showPage(2 + currentAnimalIndex); // 页面索引: 0,1 静态, 2~9 游戏, 10 分数
+                    } else {
+                        // 全部完成，去分数页
+                        showPage(10); // 索引10 = 第11页
+                    }
+                }, 1200);
+            }
+
+            // 生成游戏页面 (8个)
+            function buildGamePages() {
+                // 移除已有的游戏页和分数页 (以防重复构建)
+                document.querySelectorAll('.page.dynamic').forEach(el => el.remove());
+
+                // 构建8个游戏页
+                animals.forEach((animal, idx) => {
+                    const page = document.createElement('div');
+                    page.className = 'page dynamic';
+                    page.setAttribute('data-game-index', idx);
+                    page.id = `gamePage${idx}`;
+
+                    // 动物图片区域
+                    const animalDisplay = document.createElement('div');
+                    animalDisplay.className = 'animal-display';
+                    const animalSpan = document.createElement('div');
+                    animalSpan.className = 'animal-img';
+                    animalSpan.textContent = animal.emoji;
+                    animalSpan.style.fontSize = '9rem';
+                    animalDisplay.appendChild(animalSpan);
+
+                    // 重播音频按钮
+                    const replayBtn = document.createElement('button');
+                    replayBtn.className = 'replay-btn';
+                    replayBtn.textContent = '🔊 Listen again';
+                    replayBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        initAudio();
+                        playSound('click');
+                        speakSentence(animal.name, animal.like, 0.6); // 更慢
+                    });
+
+                    // 选项按钮
+                    const choicesDiv = document.createElement('div');
+                    choicesDiv.className = 'choices';
+
+                    const smileBtn = document.createElement('button');
+                    smileBtn.className = 'choice-btn';
+                    smileBtn.textContent = '😊';
+                    smileBtn.setAttribute('aria-label', 'I like');
+                    smileBtn.addEventListener('click', () => handleAnswer(true));
+
+                    const cryBtn = document.createElement('button');
+                    cryBtn.className = 'choice-btn';
+                    cryBtn.textContent = '😢';
+                    cryBtn.setAttribute('aria-label', "I don't like");
+                    cryBtn.addEventListener('click', () => handleAnswer(false));
+
+                    choicesDiv.appendChild(smileBtn);
+                    choicesDiv.appendChild(cryBtn);
+
+                    // 组装页面
+                    page.appendChild(animalDisplay);
+                    page.appendChild(replayBtn);
+
+                    page.appendChild(choicesDiv);
+
+                    // 进度点
+                    const progressDiv = document.createElement('div');
+                    progressDiv.className = 'progress';
+                    for (let i = 0; i < animals.length; i++) {
+                        const dot = document.createElement('div');
+                        dot.className = 'dot';
+                        if (i === idx) dot.classList.add('active');
+                        progressDiv.appendChild(dot);
+                    }
+                    page.appendChild(progressDiv);
+
+                    container.appendChild(page);
+                });
+
+                // 构建分数页 (第11页)
+                const scorePage = document.createElement('div');
+                scorePage.className = 'page dynamic';
+                scorePage.id = 'scorePage';
+
+                const scoreTitle = document.createElement('h1');
+                scoreTitle.textContent = '🎉 YOUR SCORE 🎉';
+                scorePage.appendChild(scoreTitle);
+
+                const nameDisplay = document.createElement('div');
+                nameDisplay.className = 'score-name';
+                nameDisplay.id = 'scoreNameDisplay';
+                scorePage.appendChild(nameDisplay);
+
+                const scoreDisplay = document.createElement('div');
+                scoreDisplay.className = 'score-display';
+                scoreDisplay.id = 'finalScoreDisplay';
+                scorePage.appendChild(scoreDisplay);
+
+                const starsDiv = document.createElement('div');
+                starsDiv.className = 'stars';
+                starsDiv.id = 'starsDisplay';
+                scorePage.appendChild(starsDiv);
+
+                const restartBtn = document.createElement('button');
+                restartBtn.className = 'big-button';
+                restartBtn.textContent = 'PLAY AGAIN 🔄';
+                restartBtn.style.marginTop = '30px';
+                restartBtn.addEventListener('click', () => {
+                    // 重置所有状态，重新生成随机动物数组
+                    score = 0;
+                    currentAnimalIndex = 0;
+                    answered = false;
+                    // 重新生成随机动物
+                    animals = generateRandomAnimals();
+                    totalQuestions = animals.length;
+                    // 重新构建游戏页 (重置禁用状态，使用新的动物)
+                    buildGamePages();
+                    // 重新显示第一页
+                    showPage(0);
+                    // 清空名字输入? 保留也可以，但重新开始
+                    document.getElementById('playerNameInput').value = '';
+                    playerName = '';
+                });
+                scorePage.appendChild(restartBtn);
+
+                // 进度点
+                const progressDiv = document.createElement('div');
+                progressDiv.className = 'progress';
+                for (let i = 0; i < animals.length; i++) {
+                    const dot = document.createElement('div');
+                    dot.className = 'dot';
+                    progressDiv.appendChild(dot);
+                }
+                scorePage.appendChild(progressDiv);
+
+                container.appendChild(scorePage);
+            }
+
+            // 页面显示函数 (索引: 0~10)
+            function showPage(index) {
+                // 隐藏所有页面
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+                // 显示目标页面
+                let targetPage = null;
+                if (index === 0) targetPage = page1;
+                else if (index === 1) targetPage = page2;
+                else if (index >= 2 && index <= 9) {
+                    // 游戏页索引 2~9 对应 animalIndex 0~7
+                    const gameIdx = index - 2;
+                    targetPage = document.querySelector(`.page[data-game-index="${gameIdx}"]`);
+                    // 重置该游戏页的状态
+                    if (targetPage) {
+                        const btns = targetPage.querySelectorAll('.choice-btn');
+                        btns.forEach(btn => btn.disabled = false);
+                        // 重置当前动物索引和answered
+                        currentAnimalIndex = gameIdx;
+                        answered = false;
+                    }
+                } else if (index === 10) {
+                    // 分数页
+                    targetPage = document.getElementById('scorePage');
+                    // 更新分数显示
+                    document.getElementById('scoreNameDisplay').textContent = `Great job, ${playerName || 'friend'}!`;
+                    document.getElementById('finalScoreDisplay').textContent = `${score} / ${totalQuestions}`;
+                    // 星星
+                    const stars = '⭐'.repeat(score) + '☆'.repeat(totalQuestions - score);
+                    document.getElementById('starsDisplay').textContent = stars;
+                }
+
+                if (targetPage) {
+                    targetPage.classList.add('active');
+                    currentPageIndex = index;
+                } else {
+                    console.warn('Page not found:', index);
+                }
+
+                // 更新所有进度点
+                updateProgress();
+
+                // 如果进入游戏页，自动播放音频 (稍微延迟，避免与点击音效重叠)
+                if (index >= 2 && index <= 9) {
+                    const gameIdx = index - 2;
+                    const animal = animals[gameIdx];
+                    // 延迟播放，让页面渲染一下
+                    setTimeout(() => {
+                        initAudio();
+                        speakSentence(animal.name, animal.like, 0.6); // 更慢语速
+                    }, 300);
+                }
+            }
+
+            // 初始化事件监听
+            function init() {
+                // 初始生成随机动物
+                animals = generateRandomAnimals();
+                totalQuestions = animals.length;
+
+                // 构建所有动态页面（游戏页+分数页）
+                buildGamePages();
+
+                // 开始按钮
+                const startBtn = document.getElementById('startBtn');
+                const nameInput = document.getElementById('playerNameInput');
+                startBtn.addEventListener('click', () => {
+                    const name = nameInput.value.trim();
+                    if (name === '') {
+                        // 如果没输入名字，给个默认
+                        playerName = 'Friend';
+                    } else {
+                        playerName = name;
+                    }
+                    // 播放点击音效
+                    initAudio();
+                    playSound('click');
+                    // 去第二页
+                    showPage(1);
+                });
+
+                // 指令页的音频按钮
+                const instructionAudioBtn = document.getElementById('instructionAudioBtn');
+                instructionAudioBtn.addEventListener('click', () => {
+                    initAudio();
+                    playSound('click');
+                    speakInstructions();
+                });
+
+                // 去游戏按钮
+                const toGameBtn = document.getElementById('toGameBtn');
+                toGameBtn.addEventListener('click', () => {
+                    initAudio();
+                    playSound('click');
+                    // 重置分数和索引，但动物数据已经在初始化时生成，如果希望每次重新开始都随机，可以重新生成
+                    // 但为了不重置换页面的内容，我们先不重新生成，保持本次游戏的随机序列。
+                    // 如果希望重新开始完全随机，在restart中已经做了。
+                    score = 0;
+                    currentAnimalIndex = 0;
+                    answered = false;
+                    showPage(2); // 第一个游戏页
+                });
+
+                // 预加载语音列表 (某些浏览器需要)
+                if (window.speechSynthesis) {
+                    window.speechSynthesis.getVoices();
+                }
+
+                // 点击时初始化音频上下文（浏览器策略）
+                document.body.addEventListener('click', () => {
+                    initAudio();
+                }, { once: true });
+            }
+
+            // 页面加载后初始化
+            window.addEventListener('DOMContentLoaded', init);
+
+            // 暴露一些全局方法以便调试 (可选)
+            window.showPage = showPage;
+        })();
+    </script>
+</body>
+</html>
